@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+BRANCH="add-kernel-ci"
+echo "Creating branch $BRANCH"
+git checkout -b "$BRANCH"
+
+mkdir -p scripts .github/workflows
+
+cat > README-kernel.md <<'EOF'
+# ENginexOSup: Kernel CI + QEMU test
+
+This adds scripts and a GitHub Actions workflow to fetch the Motorola MTK kernel you specified and attempt an automated cross build + QEMU smoke test (headless). Defaults assume an AArch64 (arm64) build and QEMU virt machine. If your target is 32-bit ARM, adjust ARCH/CROSS_COMPILE accordingly.
+
+Kernel source URL used: https://github.com/MotorolaMobilityLLC/kernel-mtk
+
+What was added (branch: add-kernel-ci):
+- scripts/clone-kernel.sh        # clone the kernel source into kernel-src/
+- scripts/build-kernel.sh        # cross-build the kernel (default: aarch64)
+- scripts/make-initramfs.sh      # create a minimal initramfs using busybox
+- scripts/run-qemu-aarch64.sh    # run QEMU (aarch64) with the built Image + initramfs
+- .github/workflows/ci-build-and-boot.yml  # CI: build + QEMU smoke test
+- README-kernel.md               # short instructions
+
+Quick summary (local):
+1) Fetch kernel:
+   ./scripts/clone-kernel.sh
+
+2) Build kernel (requires aarch64 cross toolchain on Ubuntu):
+   ./scripts/build-kernel.sh
+
+3) Create initramfs:
+   ./scripts/make-initramfs.sh
+
+4) Run in QEMU:
+   ./scripts/run-qemu-aarch64.sh
+
+Notes:
+- Defaults target aarch64 (ARM64). If you need 32-bit ARM, change ARCH/CROSS_COMPILE in scripts/build-kernel.sh and CI.
+- Android kernels may require a device .config or device tree; provide one if build fails.
+EOF
+
+cat > scripts
+
